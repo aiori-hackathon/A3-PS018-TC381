@@ -1,0 +1,26 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+
+# Local environment settings
+.env
+.env.*
+
+# Editor and operating system files
+.vscode/
+.DS_Store
+Thumbs.db
+# Local backup files
+src_backup/
+*_before_scenarios.py
+# Local backup datasets
+data/*_backup.csv
+data/*_before_scenarios.csv

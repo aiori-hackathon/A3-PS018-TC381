@@ -1,2 +1,272 @@
-# AIORI-3-HACKATHON-PROJECTS
-This repository will contain the code and resources for the AIORI-3 hackathon that will be developed during the AIORI-3
+# HAPS Link-Quality Prediction Using a Documented Channel Model
+
+**AIORI-3 Hackathon | Problem Statement: PS-018**
+
+## 1. Project Overview
+
+This project develops a simulation-based framework for predicting link quality between a High-Altitude Platform Station (HAPS) and a ground receiver.
+
+The HAPS is positioned at an altitude of 20 km. The system uses a documented propagation model, link-budget calculations and machine-learning techniques to estimate received signal power and signal-to-noise ratio (SNR).
+
+Two environmental scenarios are considered:
+
+* Clear-air conditions.
+* Rain-affected conditions.
+
+## 2. System Configuration
+
+The simulation uses the following parameters:
+
+| Parameter             |       Value |
+| --------------------- | ----------: |
+| HAPS altitude         |       20 km |
+| Operating frequency   |       2 GHz |
+| Receiver height       |       1.5 m |
+| Transmit power        |      30 dBm |
+| Transmit antenna gain |      20 dBi |
+| Receive antenna gain  |       5 dBi |
+| Bandwidth             |      10 MHz |
+| Noise figure          |        5 dB |
+| Thermal noise density | -174 dBm/Hz |
+| Earth radius          |     6371 km |
+
+These values are simulation assumptions and are not measurements from a real HAPS deployment.
+
+## 3. Propagation Model and Link Budget
+
+### 3.1 Propagation Model
+
+The project uses the ITU-R P.528-5 propagation model to calculate basic transmission loss.
+
+The propagation module calculates path loss based on the selected frequency, HAPS altitude, receiver height and ground distance.
+
+### 3.2 Geometry Calculations
+
+The geometry module calculates:
+
+* Ground distance.
+* Slant range.
+* Elevation angle.
+
+### 3.3 Link-Budget Calculation
+
+Received power is calculated using:
+
+**Pr (dBm) = Pt + Gt + Gr - L**
+
+Where:
+
+* Pt = Transmit power.
+* Gt = Transmit antenna gain.
+* Gr = Receive antenna gain.
+* L = Propagation path loss.
+
+Receiver noise power is calculated using:
+
+**N (dBm) = -174 + 10 log10(B) + NF**
+
+Where:
+
+* B = Bandwidth in Hz.
+* NF = Receiver noise figure in dB.
+
+Signal-to-noise ratio is calculated as:
+
+**SNR (dB) = Pr - N**
+
+## 4. Environmental Scenarios
+
+Two environmental scenarios are included in the simulation.
+
+### 4.1 Clear-Air Scenario
+
+The baseline propagation loss is calculated using ITU-R P.528-5 without additional rain attenuation.
+
+### 4.2 Rain-Affected Scenario
+
+Rain-specific attenuation is calculated using the ITU-R P.838 model.
+
+The simulation uses the following assumptions:
+
+* Rainfall rate: 25 mm/hour.
+* Rain-layer height: 5 km.
+* Frequency: 2 GHz.
+* Polarization: Vertical.
+
+A simplified effective rain-path approximation is used to estimate additional attenuation.
+
+This approximation is intended for scenario comparison and is not a complete atmospheric rain-path prediction model.
+
+## 5. Dataset Generation
+
+The dataset generator creates multiple receiver trajectories and calculates the corresponding link-quality parameters for both environmental scenarios.
+
+### Dataset Summary
+
+| Parameter               | Value |
+| ----------------------- | ----: |
+| Total samples           |   470 |
+| Number of trajectories  |     8 |
+| Environmental scenarios |     2 |
+| Clear-air samples       |   235 |
+| Rain-affected samples   |   235 |
+
+### Dataset Features
+
+The generated dataset contains the following columns:
+
+* `trajectory_id`
+* `position_index`
+* `scenario`
+* `ground_distance_km`
+* `slant_range_km`
+* `elevation_deg`
+* `path_loss_db`
+* `rain_attenuation_db`
+* `received_power_dbm`
+* `noise_power_dbm`
+* `snr_db`
+
+Generated dataset:
+
+`data/haps_dataset.csv`
+
+## 6. Machine-Learning Model
+
+A Random Forest Regressor is implemented to predict SNR.
+
+### Input Features
+
+* Ground distance.
+* Slant range.
+* Elevation angle.
+
+### Target Variable
+
+* Signal-to-noise ratio (SNR) in dB.
+
+### Model Configuration
+
+* Algorithm: Random Forest Regressor.
+* Number of estimators: 100.
+* Random state: 42.
+* Validation: Leave-One-Group-Out cross-validation.
+
+The trajectory ID is used as the grouping variable. This ensures that complete trajectories are held out during evaluation rather than randomly splitting individual samples from the same trajectory.
+
+Separate models are evaluated for the clear-air and rain-affected scenarios.
+
+## 7. Prediction Results
+
+The model produced the following results:
+
+| Scenario      | Samples | Trajectories | Prediction MAE |
+| ------------- | ------: | -----------: | -------------: |
+| Clear air     |     235 |            8 |      0.0138 dB |
+| Rain affected |     235 |            8 |      0.0137 dB |
+
+MAE represents Mean Absolute Error.
+
+These values measure how closely the machine-learning predictions match the synthetic analytical SNR reference values generated by the simulation. They should not be interpreted as real-world prediction accuracy.
+
+Prediction results are saved in:
+
+`data/prediction_results.csv`
+
+## 8. Analytical Baseline Comparison
+
+The analytical link-budget calculation using the P.528 propagation model is used as the reference.
+
+The Random Forest predictions are compared against the analytical SNR values.
+
+| Scenario      | ML Prediction MAE |
+| ------------- | ----------------: |
+| Clear air     |         0.0138 dB |
+| Rain affected |         0.0137 dB |
+
+The comparison evaluates how closely the machine-learning model approximates the analytical reference.
+
+Results are saved in:
+
+`data/baseline_comparison.csv`
+
+## 9. Sensitivity Analysis
+
+Sensitivity analysis is performed by varying individual link-budget parameters while keeping the reference path loss fixed at 133.14025 dB.
+
+| Parameter      | Tested Values  | Resulting SNR Values   |
+| -------------- | -------------- | ---------------------- |
+| Transmit power | 25, 30, 35 dBm | 15.86, 20.86, 25.86 dB |
+| Transmit gain  | 15, 20, 25 dBi | 15.86, 20.86, 25.86 dB |
+| Receive gain   | 0, 5, 10 dBi   | 15.86, 20.86, 25.86 dB |
+| Bandwidth      | 5, 10, 20 MHz  | 23.87, 20.86, 17.85 dB |
+| Noise figure   | 3, 5, 7 dB     | 22.86, 20.86, 18.86 dB |
+
+The results show how changes in transmit power, antenna gains, bandwidth and receiver noise figure affect the calculated SNR.
+
+Results are saved in:
+
+`data/sensitivity_results.csv`
+
+## 10. Project Structure
+
+```text
+A3-PS018-TC381/
+│
+├── src/
+│   ├── geometry.py
+│   ├── trajectory.py
+│   ├── propagation.py
+│   ├── link_budget.py
+│   ├── environment.py
+│   ├── dataset_generator.py
+│   ├── ml_model.py
+│   ├── baseline_comparison.py
+│   └── sensitivity_analysis.py
+│
+├── data/
+│   ├── haps_dataset.csv
+│   ├── haps_dataset_before_scenarios.csv
+│   ├── prediction_results.csv
+│   ├── baseline_comparison.csv
+│   └── sensitivity_results.csv
+│
+├── tests/
+├── docs/
+├── requirements.txt
+├── README.md
+└── team-video.md
+```
+
+## 11. Installation and Setup
+
+### Step 1: Clone the repository
+
+```bash
+git clone <repository-url>
+cd A3-PS018-TC381
+```
+
+### Step 2: Create a virtual environment
+
+```bash
+python3 -m venv .venv
+```
+
+### Step 3: Activate the environment
+
+```bash
+source .venv/bin/activate
+```
+
+### Step 4: Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## 12. Running the Project
+
+Run the following commands from the project root directory.
+
+### Generate the dataset
