@@ -359,9 +359,7 @@ no broken requirements.
 
 ## 13. Submission documents
 
-- [Requirement-to-evidence checklist](docs/requirement_evidence_checklist.md)
 - [Technical report draft](docs/technical_report_draft.md)
-- [Mentor demonstration script and pseudocode](docs/mentor_demo_script.md)
 
 The supplied project structure/presentation material does not include an
 official report template. If the organizers issue one, transfer the verified
