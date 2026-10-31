@@ -1,0 +1,3 @@
+target,target_label,scenarios,held_out_folds,sample_count,repetitions,total_prediction_time_s,per_sample_prediction_time_ms,python_version,platform,scikit_learn_version,model_loading_excluded,model_training_excluded,timed_operation
+received_power_dbm,Received power (dBm),2,16,470,20,1.1861877490000552,0.12619018606383564,3.10.12,Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35,1.7.2,True,True,RandomForestRegressor.predict
+snr_db,SNR (dB),2,16,470,20,1.8605605999991894,0.19793197872331803,3.10.12,Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35,1.7.2,True,True,RandomForestRegressor.predict

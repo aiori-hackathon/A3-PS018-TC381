@@ -24,3 +24,7 @@ src_backup/
 # Local backup datasets
 data/*_backup.csv
 data/*_before_scenarios.csv
+
+# Local submission-support documents
+docs/mentor_demo_script.md
+docs/requirement_evidence_checklist.md

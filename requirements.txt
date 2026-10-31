@@ -24,5 +24,6 @@ threadpoolctl==3.7.0
 tomli==2.5.0
 typing_extensions==4.16.0
 tzdata==2026.6
-Py528==5.0.1
+Py528 @ git+https://github.com/eeveetza/Py528.git@867b549c17602c5c1dda1895ac122c44ecbe1826
 itur==0.4.0
+streamlit==1.65.0
